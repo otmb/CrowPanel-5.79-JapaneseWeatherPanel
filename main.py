@@ -90,6 +90,14 @@ def create_weather_icon(code: int, offset = (0,0)):
         img_buf = framebuf.FrameBuffer(img_data, size, size, framebuf.MONO_HLSB)
         screen.blit(img_buf, 56 + offset[0], 26 + offset[1])
 
+def write_forecast_sort_data(datas, day, x, y , end_symble = ""):
+    if day in datas:
+        sorted_items = sorted(datas[day].items())
+        sorted_values = [value for _, value in sorted_items]
+        text = "/".join(sorted_values)
+        Writer.set_textpos(screen, x, y)
+        sawarabi24.printstring(f"{text}{end_symble}", True)
+
 def screen_rendering(data):
 
     three_data, week_data = data
@@ -117,21 +125,13 @@ def screen_rendering(data):
         Writer.set_textpos(screen, offset_x + col_x * i + 10, 120 + 10)
         sawarabi32.printstring(f"{text}", True)
 
-        temps = three_forecast['temps']
-        if day in temps:
-            sorted_items = sorted(temps[day].items())
-            sorted_values = [value for _, value in sorted_items]
-            text = "/".join(sorted_values)
-            Writer.set_textpos(screen, offset_x + col_x * i + 10, 32 + offset_y + 4)
-            sawarabi24.printstring(f"{text}℃", True)
-
-        pops = three_forecast['pops']
-        if day in pops:
-            sorted_items = sorted(pops[day].items())
-            sorted_values = [value for _, value in sorted_items]
-            text = "/".join(sorted_values)
-            Writer.set_textpos(screen, offset_x + col_x * i + 10, 32 + 24 + offset_y + 8)
-            sawarabi24.printstring(f"{text}", True)
+        write_forecast_sort_data(three_forecast['temps'], day,
+                                x = offset_x + col_x * i + 10,
+                                y = 32 + offset_y + 4,
+                                end_symble = "℃")
+        write_forecast_sort_data(three_forecast['pops'], day,
+                                x = offset_x + col_x * i + 10,
+                                y = 32 + 24 + offset_y + 4)
        
     # # 一週間の天気
     cel_x = 130
