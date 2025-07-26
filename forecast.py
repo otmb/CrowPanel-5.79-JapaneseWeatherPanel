@@ -21,7 +21,7 @@ def set_dict_format(time_defines, items, dict_format):
     datas = {}
     for date_text in time_defines:
         _, _, day, _, _ = parse_date(date_text)
-        datas[day] = dict_format
+        datas[day] = dict_format.copy()
     
     for i, date_text in enumerate(time_defines):
         _, _, day, hour, _ = parse_date(date_text)
