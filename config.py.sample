@@ -1,0 +1,10 @@
+# network
+ssid = ""
+password = ""
+
+# Default
+ntp_host = 'jp.pool.ntp.org'
+utc_hour = 9 # ローカル時刻をUTC+9に変換
+forest_code = 140000
+area_code = 140010
+temp_area_code = 46106
