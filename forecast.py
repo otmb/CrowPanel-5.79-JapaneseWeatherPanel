@@ -4,7 +4,7 @@ WEEEKDAY = ['月', '火', '水', '木', '金', '土', '日']
 
 def get_weekday(day: int):
     day = int(day)
-    for i in range(0,8):
+    for i in range(-1,8):
         now = get_now(i*86400)
         if day == now[2]:
             return WEEEKDAY[now[6]]
