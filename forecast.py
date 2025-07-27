@@ -1,20 +1,15 @@
-from tools import get_now
-
+import time
 WEEEKDAY = ['月', '火', '水', '木', '金', '土', '日']
-
-def get_weekday(day: int):
-    day = int(day)
-    for i in range(-1,8):
-        now = get_now(i*86400)
-        if day == now[2]:
-            return WEEEKDAY[now[6]]
-    return ""
 
 def parse_date(date_text):
     _date, _time = date_text.split('T')
     year, month, day = _date.split('-')
     hour = _time.split(':')[0]
-    weekday = get_weekday(day)
+    
+    time_tuple = (int(year), int(month), int(day), 0, 0, 0, 0, 0)
+    localtime = time.mktime(time_tuple)
+    now = time.localtime(localtime)
+    weekday = WEEEKDAY[now[6]]
     return year, month, day, hour, weekday
 
 def set_dict_format(time_defines, items, dict_format):
