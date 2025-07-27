@@ -23,7 +23,6 @@ sawarabi18 = Writer(screen, SawarabiGothicRegular18)
 sawarabi24 = Writer(screen, SawarabiGothicRegular24)
 sawarabi32 = Writer(screen, SawarabiGothicRegular32)
 
-
 # APIで天候情報取得
 def get_weather():
     url = f'https://www.jma.go.jp/bosai/forecast/data/forecast/{forest_code}.json'
@@ -133,7 +132,7 @@ def screen_rendering(data):
                                 x = offset_x + col_x * i + 10,
                                 y = 32 + 24 + offset_y + 4)
        
-    # # 一週間の天気
+    # 一週間の天気
     cel_x = 130
     offset_x = 10
     offset_y = 170
@@ -198,11 +197,11 @@ def run():
 # 起動時実行
 run()
 
-# 毎時1分に1度だけ実行
+# 1分に1度だけ実行でかつ、気象庁の更新がある 5時, 11時, 17時に実行
 try:
     while True:
-        min,sec = get_now()[4:6]
-        if min == 1:
+        hour, min = get_now()[3:5]
+        if min == 1 and hour in [5, 11, 17]:
             run()
         time.sleep(60)
 except KeyboardInterrupt:
