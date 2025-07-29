@@ -107,7 +107,12 @@ def screen_rendering(data):
     col_x = int(792 / 2)
     offset_x = 10
     offset_y = 28
-    for i in range(0,len(three_forecast['times']) -1):
+
+    max_rows = 2
+    if len(three_forecast['times']) < max_rows:
+        raise Exception("There is an insufficient amount of data")
+
+    for i in range(0,max_rows):
         _, _, day, hour, weekday = parse_date(three_forecast['times'][i])
         
         text = f"{day}日({weekday})"
@@ -137,8 +142,12 @@ def screen_rendering(data):
     offset_x = 10
     offset_y = 170
 
-    for i in range(1, len(week_forecast['times'])):
-        p = i - 1
+    min_rows = 1
+    if len(three_forecast['times']) == 2:
+        min_rows = 2
+
+    for i in range(min_rows, len(week_forecast['times'])):
+        p = i - min_rows
         _, _, day, _, weekday = parse_date(week_forecast['times'][i])
         text = f"{day}日({weekday})"
         Writer.set_textpos(screen, cel_x * p + offset_x, offset_y)
