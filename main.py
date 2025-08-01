@@ -18,7 +18,6 @@ machine.freq(240000000) # High Power 240MHz
 
 # Instantiate a Screen
 screen = eink.Screen_579()
-screen.fill(eink.COLOR_WHITE)
 sawarabi18 = Writer(screen, SawarabiGothicRegular18)
 sawarabi24 = Writer(screen, SawarabiGothicRegular24)
 sawarabi32 = Writer(screen, SawarabiGothicRegular32)
@@ -111,6 +110,8 @@ def screen_rendering(data):
     max_rows = 2
     if len(three_forecast['times']) < max_rows:
         raise Exception("There is an insufficient amount of data")
+
+    screen.fill(eink.COLOR_WHITE)
 
     for i in range(0,max_rows):
         _, _, day, hour, weekday = parse_date(three_forecast['times'][i])
