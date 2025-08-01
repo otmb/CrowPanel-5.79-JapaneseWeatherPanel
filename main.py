@@ -46,20 +46,14 @@ def get_weather_icon_name(code) -> tuple:
     icons = combination.split(',')
     icon_name = icons[0].lower()
     half_icon_name = None
-
-    if len(icons) == 2:
-        icon_text = icons[1].strip()
-        if 'LATER' in icon_text:
-            half_icon_name, _ = icon_text.split(" ")
-            half_icon_name = icon_name
-        else:
-            half_icon_name = icon_text
-    if half_icon_name:
-        half_icon_name = half_icon_name.lower()
-    return icon_name, half_icon_name
+    is_later = False
+    if len(icons) > 1:
+        half_icon_name = icons[1].lower()
+    is_later = len(icons) > 2
+    return icon_name, half_icon_name, is_later
 
 def create_weather_icon_large(code: int, offset = (0,0)):
-    icon_name, half_icon_name = get_weather_icon_name(code)
+    icon_name, half_icon_name, _ = get_weather_icon_name(code)
 
     if icon_name:
         size = 128
@@ -74,7 +68,7 @@ def create_weather_icon_large(code: int, offset = (0,0)):
         screen.blit(img_buf, 114 + offset[0], 64 + offset[1])
 
 def create_weather_icon(code: int, offset = (0,0)):
-    icon_name, half_icon_name = get_weather_icon_name(code)
+    icon_name, half_icon_name, _ = get_weather_icon_name(code)
 
     if icon_name:
         size = 64
