@@ -22,14 +22,29 @@ sawarabi18 = Writer(screen, SawarabiGothicRegular18)
 sawarabi24 = Writer(screen, SawarabiGothicRegular24)
 sawarabi32 = Writer(screen, SawarabiGothicRegular32)
 
+import requests
 # APIで天候情報取得
 def get_weather():
     url = f'https://www.jma.go.jp/bosai/forecast/data/forecast/{forest_code}.json'
     print("Get Weahter Request Start.")
-    response = urequests.get(url)
-    if response.reason != b"OK" or response.status_code >= 400:
-        raise Exception(f"HTTP Request failed. Status Code: {response.status_code}")
-    
+
+    error = None
+    for i in range(3):
+        try:
+            response = urequests.get(url, timeout=10)
+            if response.reason != b"OK" or response.status_code >= 400:
+                raise Exception(f"HTTP Request failed. Status Code: {response.status_code}")
+            error = None
+            break
+        except Exception as e:
+            error = e
+            time.sleep(1)
+            print(f"request retry: {i}, error: {e}")
+            continue
+
+    if error is not None:
+        raise Exception(f"request error: {error}")
+
     print("Get Weahter Request Success.")
     data = response.json()
     response.close()
