@@ -24,7 +24,26 @@ sawarabi32 = Writer(screen, SawarabiGothicRegular32)
 
 import requests
 # APIで天候情報取得
+# - 天気の取得に失敗すると1秒待機して3回繰り返します
+# - それでも失敗した場合、60秒待機して最大10回りトライします
 def get_weather():
+    error = None
+    for i in range(10):
+        try:
+            data = _get_weather()
+            error = None
+            break
+        except Exception as e:
+            error = e
+            print(f"request retry: {i}, error: {e}")
+            time.sleep(60)
+    
+    if error is not None:
+        raise Exception(f"request error: {error}")
+
+    return data
+
+def _get_weather():
     url = f'https://www.jma.go.jp/bosai/forecast/data/forecast/{forest_code}.json'
     print("Get Weahter Request Start.")
 
