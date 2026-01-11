@@ -22,33 +22,19 @@ sawarabi18 = Writer(screen, SawarabiGothicRegular18)
 sawarabi24 = Writer(screen, SawarabiGothicRegular24)
 sawarabi32 = Writer(screen, SawarabiGothicRegular32)
 
+# エラー追跡用のグローバル変数
+error_flag = False
+error_time = None
+
 import requests
 # APIで天候情報取得
-# - 天気の取得に失敗すると1秒待機して3回繰り返します
-# - それでも失敗した場合、60秒待機して最大10回りトライします
+# - 天気の取得に失敗すると10秒待機して10回繰り返します
 def get_weather():
-    error = None
-    for i in range(10):
-        try:
-            data = _get_weather()
-            error = None
-            break
-        except Exception as e:
-            error = e
-            print(f"request retry: {i}, error: {e}")
-            time.sleep(60)
-    
-    if error is not None:
-        raise Exception(f"request error: {error}")
-
-    return data
-
-def _get_weather():
     url = f'https://www.jma.go.jp/bosai/forecast/data/forecast/{forest_code}.json'
     print("Get Weahter Request Start.")
 
     error = None
-    for i in range(3):
+    for i in range(10):
         try:
             response = urequests.get(url, timeout=10)
             if response.reason != b"OK" or response.status_code >= 400:
@@ -57,7 +43,7 @@ def _get_weather():
             break
         except Exception as e:
             error = e
-            time.sleep(1)
+            time.sleep(10)
             print(f"request retry: {i}, error: {e}")
             continue
 
@@ -215,6 +201,7 @@ def screen_rendering(data):
     screen.show()
 
 def run():
+    global error_flag, error_time
     try:
         machine.freq(240000000) # High Power 240MHz
         print("freq: ", machine.freq())
@@ -223,11 +210,15 @@ def run():
             set_time()
             data = get_weather()
             screen_rendering(data)
+            # 正常完了時はエラーフラグをクリア
+            error_flag = False
+            error_time = None
     except Exception as e:
         print("error: ", e)
-        screen.fill(eink.COLOR_WHITE)
-        screen.text(f"{e}", 0, 0, eink.COLOR_BLACK)
-        screen.show()
+        # エラー時はフラグを立てて、エラー発生時刻を記録
+        error_flag = True
+        error_time = time.time()
+        # 画面は更新しない
     finally:
         disconnect_wifi()
         machine.freq(20000000) # Low Power 20MHz
@@ -239,8 +230,18 @@ run()
 try:
     while True:
         hour, min = get_now()[3:5]
-        if min == 1 and hour in [5, 11, 17]:
+        
+        # エラー状態で10分以上経過している場合は再度実行
+        if error_flag and error_time is not None:
+            elapsed_time = time.time() - error_time
+            if elapsed_time >= 600:  # 600秒 = 10分
+                print("Retry after error (1 hour elapsed)")
+                run()
+        
+        # 通常の定時実行（エラーフラグが立っていない場合）
+        if not error_flag and min == 1 and hour in [5, 11, 17]:
             run()
+        
         time.sleep(60)
 except KeyboardInterrupt:
     pass
